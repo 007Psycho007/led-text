@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "author": "Jan",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": -4.76, "attrs": {} },
+    {
+      "type": "wokwi-neopixel-canvas",
+      "id": "neopixels1",
+      "top": -203.4,
+      "left": 372.2,
+      "rotate": 90,
+      "attrs": { "rows": "15", "cols": "1", "pixelate": "circle", "matrixBrightness": "3.5" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "neopixels1:DIN", "esp:2", "green", [ "h-38.4", "v186.6" ] ],
+    [ "neopixels1:VSS", "neopixels1:VDD", "green", [ "h0" ] ],
+    [ "esp:5V", "neopixels1:VDD", "red", [ "v28.8", "h187.39", "v-263.8" ] ],
+    [ "neopixels1:VSS", "esp:GND.2", "black", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}
