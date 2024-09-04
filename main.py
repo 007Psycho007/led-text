@@ -1,9 +1,18 @@
-
 from machine import Pin
 from neopixel import NeoPixel
 from time import sleep
 
-letters = {
+
+
+
+class matrix():
+  def __init__(self,pins: list,columns: int):
+    self.rows = []
+    for i in range(0, len(pins)):
+      self.rows.append(NeoPixel(pins[i],columns))
+    self.columns = columns
+    self.letter_index = 0
+    self.letters = {
            'A': [[1,1,1],[1,0,1],[1,1,1],[1,0,1],[1,0,1]],
            'B': [[1,1,0],[1,0,1],[1,1,0],[1,0,1],[1,1,0]],
            'C': [[0,1,1],[1,0,0],[1,0,0],[1,0,0],[0,1,1]],
@@ -26,22 +35,13 @@ letters = {
            'T': [[1,1,1],[0,1,0],[0,1,0],[0,1,0],[0,1,0]],
            'U': [[1,0,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],
            'V': [[1,0,1],[1,0,1],[1,0,1],[1,0,1],[0,1,0]],
+           'V': [[1,0,1],[1,0,1],[1,0,1],[1,0,1],[0,1,0]],
            'W': [[1,0,1],[1,0,1],[1,0,1],[1,1,1],[1,0,1]],
            'X': [[1,0,1],[1,0,1],[0,1,0],[1,0,1],[1,0,1]],
            'Y': [[1,0,1],[1,0,1],[1,1,1],[0,1,0],[0,1,0]],
            'Z': [[1,1,1],[0,0,1],[0,1,0],[1,0,0],[1,1,1]],
            }
 
-class matrix():
-  def __init__(self,pins: list,columns: int):
-    self.rows = []
-    for i in range(0, len(pins)):
-      self.rows.append(NeoPixel(pins[i],columns))
-    self.columns = columns
-    self.letter_index = 1
-    self.letters = {}
-    self.letters["i"] = [[1],[1],[1],[1],[1]]
-    self.letters["a"] = [[1,1,1],[1,0,1],[1,1,1],[1,0,1],[1,0,1]]
   def write_letter(self,letter: str):
     for idi, i in enumerate(self.letters[letter]):
       for idj, j in enumerate(i):
@@ -59,13 +59,10 @@ class matrix():
       for j in range(0,self.columns):
         self.rows[i][j] = (0,0,0)
       self.rows[i].write()
-    self.letter_index = 1
+    self.letter_index = 0
 
 def main():
   m = matrix([Pin(13),Pin(12),Pin(14),Pin(27),Pin(26)],20)
-  m.write_string("ia")
-  sleep(1)
-  m.clear()
-  m.write_string("ai")
+  m.write_string("HALLE")
 if __name__ == "__main__":
   main()
