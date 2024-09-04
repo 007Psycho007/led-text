@@ -1,11 +1,23 @@
-# NeoPixels Rainbow on MicroPython
-# Wokwi Example https://wokwi.com/arduino/projects/305569065545499202
 
 from machine import Pin
 from neopixel import NeoPixel
 from time import sleep
 
-
+letters = {
+           'A': [[1,1,1],[1,0,1],[1,1,1],[1,0,1],[1,0,1]],
+           'B': [[1,1,0],[1,0,1],[1,1,0],[1,0,1],[1,1,0]],
+           'C': [[0,1,1],[1,0,0],[1,0,0],[1,0,0],[0,1,1]],
+           'D': [[1,1,0],[1,0,1],[1,0,1],[1,0,1],[1,1,0]],
+           'E': [[1,1,1],[1,0,0],[1,1,1],[1,0,0],[1,1,1]],
+           'F': [[1,1,1],[1,0,0],[1,1,1],[1,0,0],[1,0,0]],
+           'G': [[0,1,1],[1,0,0],[1,0,1],[1,0,1],[0,1,1]],
+           'H': [[1,0,0],[1,0,1],[1,1,1],[1,0,1],[1,0,1]],
+           'I': [[1,1,1],[0,1,0],[0,1,0],[0,1,0],[1,1,1]],
+           'J': [[0,0,1],[0,0,1],[0,0,1],[1,0,1],[1,1,1]],
+           'K': [[1,0,1],[1,0,1],[1,1,0],[1,0,1],[1,0,1]],
+           'L': [[1,0,0],[1,0,0],[1,0,0],[1,0,0],[1,1,1]],
+           'M': [[1,0,1],[1,1,1],[1,0,1],[1,0,1],[1,0,1]],
+           }
 
 class matrix():
   def __init__(self,pins: list,columns: int):
@@ -15,8 +27,8 @@ class matrix():
     self.columns = columns
     self.letter_index = 1
     self.letters = {}
-    self.letters["i"] = [[1],[1],[1],[1]]
-    self.letters["a"] = [[1,1,1,],[1,0,1,],[1,1,1,],[1,0,1,]]
+    self.letters["i"] = [[1],[1],[1],[1],[1]]
+    self.letters["a"] = [[1,1,1],[1,0,1],[1,1,1],[1,0,1],[1,0,1]]
   def write_letter(self,letter: str):
     for idi, i in enumerate(self.letters[letter]):
       for idj, j in enumerate(i):
@@ -37,7 +49,7 @@ class matrix():
     self.letter_index = 1
 
 def main():
-  m = matrix([Pin(13),Pin(12),Pin(14),Pin(27)],10)
+  m = matrix([Pin(13),Pin(12),Pin(14),Pin(27),Pin(26)],20)
   m.write_string("ia")
   sleep(1)
   m.clear()
