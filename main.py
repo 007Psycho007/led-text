@@ -1,95 +1,58 @@
 from machine import Pin
 from neopixel import NeoPixel
 from time import sleep
+from led_controller import Matrix
+import usocket
+from uselect import select
 
+html = """HTTP/1.1 200 OK
+Content-Type: text/html
 
+<!DOCTYPE html>
+<html>
+    <head> <title>Change Running Text</title> </head>
+    <body>
+        <h1>Enter Text to Display:</h1>
+        <form action="/" method="POST">
+            <input type="text" name="text" placeholder=""><br>
+            <left><button type="submit">Submit</button></left>
+        </form>
+    </body>
+</html>
+"""
 
-class matrix():
-    def __init__(self,pins: list,columns: int):
-        self.rows = []
-        self.row_count = len(pins)
-        self.text = False
-        for i in range(0, len(pins)):
-            self.rows.append(NeoPixel(pins[i],columns))
-        self.columns = columns
-        self.letter_index = 0
-        self.letters = {
-                   'A': [[1,1,1],[1,0,1],[1,1,1],[1,0,1],[1,0,1]],
-                   'B': [[1,1,0],[1,0,1],[1,1,0],[1,0,1],[1,1,0]],
-                   'C': [[0,1,1],[1,0,0],[1,0,0],[1,0,0],[0,1,1]],
-                   'D': [[1,1,0],[1,0,1],[1,0,1],[1,0,1],[1,1,0]],
-                   'E': [[1,1,1],[1,0,0],[1,1,1],[1,0,0],[1,1,1]],
-                   'F': [[1,1,1],[1,0,0],[1,1,1],[1,0,0],[1,0,0]],
-                   'G': [[0,1,1],[1,0,0],[1,0,1],[1,0,1],[0,1,1]],
-                   'H': [[1,0,1],[1,0,1],[1,1,1],[1,0,1],[1,0,1]],
-                   'I': [[1,1,1],[0,1,0],[0,1,0],[0,1,0],[1,1,1]],
-                   'J': [[0,0,1],[0,0,1],[0,0,1],[1,0,1],[1,1,1]],
-                   'K': [[1,0,1],[1,0,1],[1,1,0],[1,0,1],[1,0,1]],
-                   'L': [[1,0,0],[1,0,0],[1,0,0],[1,0,0],[1,1,1]],
-                   'M': [[1,0,1],[1,1,1],[1,0,1],[1,0,1],[1,0,1]],
-                   'N': [[1,1,1],[1,0,1],[1,0,1],[1,0,1],[1,0,1]],
-                   'O': [[1,1,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],
-                   'P': [[1,1,1],[1,0,1],[1,1,1],[1,0,0],[1,0,0]],
-                   'Q': [[1,1,1],[1,0,1],[1,0,1],[1,1,1],[0,0,1]],
-                   'R': [[1,1,0],[1,0,1],[1,1,0],[1,0,1],[1,0,1]],
-                   'S': [[0,1,1],[1,0,0],[0,1,0],[0,0,1],[1,1,0]],
-                   'T': [[1,1,1],[0,1,0],[0,1,0],[0,1,0],[0,1,0]],
-                   'U': [[1,0,1],[1,0,1],[1,0,1],[1,0,1],[1,1,1]],
-                   'V': [[1,0,1],[1,0,1],[1,0,1],[1,0,1],[0,1,0]],
-                   'V': [[1,0,1],[1,0,1],[1,0,1],[1,0,1],[0,1,0]],
-                   'W': [[1,0,1],[1,0,1],[1,0,1],[1,1,1],[1,0,1]],
-                   'X': [[1,0,1],[1,0,1],[0,1,0],[1,0,1],[1,0,1]],
-                   'Y': [[1,0,1],[1,0,1],[1,1,1],[0,1,0],[0,1,0]],
-                   'Z': [[1,1,1],[0,0,1],[0,1,0],[1,0,0],[1,1,1]],
-                   }
-    def _shift(self,seq, n):
-        n = n % len(seq)
-        return seq[n:] + seq[:n]
-
-    def clear(self):
-        for i in range(0,len(self.rows)):
-            for j in range(0,self.columns):
-                self.rows[i][j] = (0,0,0)
-            self.rows[i].write()
-        self.letter_index = 0
-
-    def generate_text(self,string,buff):
-        text = []
-        for i in range(0,self.row_count):
-            text.append([])
-        for letter in string:
-            for idi, i in enumerate(self.letters[letter]):
-                for idj, j in enumerate(i):
-                    text[idi].append(j)
-                text[idi].append(0)
-        for i in range(0,self.row_count):
-            for i in range(0,buff):
-                text[i].append(0)
-        self.text = text
-
-    def write_text(self):
-        if self.text != False: 
-            self._output(self.text)
-        else: 
-            print("No Text defined")
-    def _output(self,text):
-        for idi, i in enumerate(text):
-            for idj, j in enumerate(i):
-                self.rows[idi][idj] = (j*255,0,0)
-                if idj == self.columns-1:
-                    break
-            self.rows[idi].write()
-
-    def rotate_text(self,interval=1,speed=1):
-        text = self.text
-        while True:
-            self._output(text)
-            sleep(speed)
-            for i in range(0,self.row_count):
-                text[i] = self._shift(text[i],interval)
 def main():
-    m = matrix([Pin(13),Pin(12),Pin(14),Pin(27),Pin(26)],20)
-    m.generate_text("ABCDER",5)
-    m.rotate_text()
+    text = "ADCONOVA GMBH"
+    m = Matrix([Pin(13),Pin(12),Pin(14),Pin(27),Pin(26)],20)
+    m.generate_text(text,5)
+
+    addr = usocket.getaddrinfo('0.0.0.0', 80)[0][-1]
+    s = usocket.socket()
+    # s.setsockopt(usocket.SOL_SOCKET, usocket.SO_REUSEADDR, 1)
+    s.bind(addr)
+    s.listen(1)
+
+    print('listening on', addr)
+
+    while True:
+        m.write_text()
+        r, w, err = select((s,), (), (), 1)
+        if r:
+            for readable in r:
+                client, addr = s.accept()
+                try:
+                    request = client.recv(1024)
+                    request = str(request).split("\\r\\n")
+                    if "text" in request[-1]:
+                        text = request[-1].split("=")[1][:-1].replace("+"," ")
+                        m.generate_text(text,5)
+                        m.write_text()
+                    client.send(html)
+                    client.close()
+
+                except OSError as e:
+                    pass
+        m.shift_text()
+
 if __name__ == "__main__":
     main()
